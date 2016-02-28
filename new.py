@@ -132,20 +132,23 @@ list_y = np.array(y)[0].tolist()
 
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
-print(scaler.fit(X))  # Don't cheat - fit only on training dataxs
+scaler.fit(X)  # Don't cheat - fit only on training dataxs
 
 clf = SGDClassifier(loss="hinge", penalty="l2")
 clf.fit(X, list_y)
-SGDClassifier(alpha=0.001, average=True, class_weight=None, epsilon=0.1,
+SGDClassifier(alpha=0.01, average=True, class_weight=None, epsilon=0.1,
        eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate='optimal', loss='hinge', n_iter=100, n_jobs=1,
+       learning_rate='optimal', loss='hinge', n_iter=1000, n_jobs=1,
        penalty='l2', power_t=0.5, random_state=None, shuffle=True,
        verbose=0, warm_start=False)
 
-def guess_Price(beds,baths,sqr_feet,year,month):
-    average = (get_year_price(year,month,Dow) + get_year_price(year,month,sp500))/2
-    print(average)
+def guess_Price(beds,baths,sqr_feet, month,year):
+    if year == "2016":
+        average = (Dow.get_change()+ sp500.get_change())/2
+    else:
+        average = (get_year_price(month,year,Dow) + get_year_price(month,year,sp500))/2
+    #print(Dow.get_change())
     return (clf.predict([[beds, baths,sqr_feet]]) / (average))
 
-print(guess_Price(1,1,760,"2009","02"))
+print(guess_Price(2,3,1760,"2008","02"))
 
