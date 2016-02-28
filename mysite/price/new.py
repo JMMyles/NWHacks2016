@@ -1,8 +1,3 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from .models import Request
-from .forms import RequestForm
 from numpy import loadtxt, zeros, ones, array, linspace, logspace, mean, std, arange
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -16,24 +11,51 @@ import re
 from yahoo_finance import Share
 from sklearn.linear_model import SGDClassifier
 
-HouseFile = open('price/HousingData.csv','r')
+
+HouseFile = open('HousingData.csv','r')
 info_list = np.matrix([1,1,1])
 house_list = []
 price_matrix = np.matrix([1])
 np.seterr(divide='ignore', invalid='ignore')
 
+# Classes
+class House(object):
+    zip_code = 0
+    beds = 0
+    baths = 0
+    sqr_feet = 0
+    price = 0
+
+def make_House(zip_code, beds, baths,sqr_feet,price):
+    house = House()
+    house.zip_code = zip_code
+    house.beds = beds
+    house.baths = baths
+    house.sqr_feet = sqr_feet
+    house.price = price
+    return house
+
+
+def __repr__(self):
+    return "<Test zip:%s beds:%s baths:%s sqr_feet:%s price:%s>" % (self.zip_code, self.beds,self.baths,self.sqr_feet,self.price)
+
+def __str__(self):
+    return "zip:%s beds:%s baths:%s sqr_feet:%s price:%s" % (self.zip_code, self.beds,self.baths,self.sqr_feet,self.price)
+
+
 NASDAQ = Share('^NQDXUSB')
 Dow = Share('^DJI')
 sp500 = Share('^GSPC')
 
-def get_year_price(month, year, index):
-	index_year = index.get_historical(year +'-'+ month +'-01', year + '-'+month+ '-28')
-	s_open = float(index_year[0]['Open'])
-	s_close = float(index_year[0]['Close'])
-	s_open365 = float(index_year[len(index_year) - 1]['Open'])
-	s_close365 = float(index_year[len(index_year) - 1]['Close'])
-	s_open_diff = 1 + (s_open - s_open365) / s_open
-	return(s_open_diff)
+def get_year_price(year, month, index):
+    index_year = index.get_historical(year +'-'+ month +'-01', year + '-'+month+ '-28')
+    s_open = float(index_year[0]['Open'])
+    s_close = float(index_year[0]['Close'])
+    s_open365 = float(index_year[len(index_year) - 1]['Open'])
+    s_close365 = float(index_year[len(index_year) - 1]['Close'])
+    s_open_diff = 1 + (s_open - s_open365) / s_open
+
+    return(s_open_diff)
 
 def feature_normalize(X):
     '''
@@ -91,65 +113,18 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     return(theta, J_history)
 
 
-def guess_Price(beds,baths,sqr_feet, month,year):
-    if year == "2016":
-         average = (get_year_price("01","2016",Dow) + get_year_price("01","2016",sp500))/2
-    else:
-        average = (get_year_price(month,year,Dow) + get_year_price(month,year,sp500))/2
-    #print(Dow.get_change())
-    return (clf.predict([[beds, baths,sqr_feet]]) / (average))
-
-def index(request):
-	if request.method == 'POST':
-
-		form = RequestForm(request.POST)
-
-		if form.is_valid():
-
-			return HttpResponseRedirect('/results/')
-
-	else:
-		form = RequestForm()
-
-	#latest_request_list = Request.objects.order_by('-pub_date')[:5]
-	#context = {
-		#'latest_request_list': latest_request_list
-	#}
-	return render(request, 'price/index.html', {'form':form})
-
-
-def results(request):
-	if request.method == 'POST':
-
-		Form = RequestForm(request.POST)
-
-		if Form.is_valid():
-
-			house = float(Form.cleaned_data['House_size'])
-			bed = float(Form.cleaned_data['number_of_beds'])
-			bath = float(Form.cleaned_data['number_of_bathrooms'])
-			mon = Form.cleaned_data['month']
-			year = Form.cleaned_data['year']
-
-			value = guess_Price(bed,bath,house,mon,year)
-
-			return HttpResponse(value)
-
-	else:
-
-		response = "You're looking at the results of request."
-		return HttpResponse(response)
-
 #Load the dataset
 for line in HouseFile:  
     matchObj = re.match( r'\d+ \w+ \w+,\w+,(\w+),\w+,(\d+),(\d+),(\d+),\w+,\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d+,(\d+)', line, re.M|re.I)
 
     if matchObj:
         if not(matchObj.group(1) == 0) or (matchObj.group(1) == 0) or (matchObj.group(3) == 0) or (matchObj.group(4) == 0)  or (matchObj.group(5) == 0): 
+            house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
             new_value = np.matrix([float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
             info_list = np.concatenate((info_list, new_value), axis=0)
             new_price = np.matrix([float(matchObj.group(5))])
             price_matrix = np.concatenate((price_matrix, new_price), axis=0)
+            house_list.append(house)
 
 X = info_list
 y = price_matrix.transpose()
@@ -167,5 +142,13 @@ SGDClassifier(alpha=0.01, average=True, class_weight=None, epsilon=0.1,
        penalty='l2', power_t=0.5, random_state=None, shuffle=True,
        verbose=0, warm_start=False)
 
-# Create your views here.
+def guess_Price(beds,baths,sqr_feet, month,year):
+    if year == "2016":
+        average = (Dow.get_change()+ sp500.get_change())/2
+    else:
+        average = (get_year_price(month,year,Dow) + get_year_price(month,year,sp500))/2
+    #print(Dow.get_change())
+    return (clf.predict([[beds, baths,sqr_feet]]) / (average))
+
+print(guess_Price(2,3,1760,"2008","02"))
 
