@@ -47,9 +47,8 @@ NASDAQ = Share('^NQDXUSB')
 Dow = Share('^DJI')
 sp500 = Share('^GSPC')
 
-def get_year_price(year, index):
-    year = str(year-4)
-    index_year = index.get_historical(year+'-01-01', year+'-12-31')
+def get_year_price(year, month, index):
+    index_year = index.get_historical(year +'-'+ month +'-01', year + '-'+month+ '-28')
     s_open = float(index_year[0]['Open'])
     s_close = float(index_year[0]['Close'])
     s_open365 = float(index_year[len(index_year) - 1]['Open'])
@@ -131,18 +130,22 @@ X = info_list
 y = price_matrix.transpose()
 list_y = np.array(y)[0].tolist()
 
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+print(scaler.fit(X))  # Don't cheat - fit only on training dataxs
+
 clf = SGDClassifier(loss="hinge", penalty="l2")
 clf.fit(X, list_y)
-SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
+SGDClassifier(alpha=0.001, average=True, class_weight=None, epsilon=0.1,
        eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate='optimal', loss='hinge', n_iter=5, n_jobs=1,
+       learning_rate='optimal', loss='hinge', n_iter=100, n_jobs=1,
        penalty='l2', power_t=0.5, random_state=None, shuffle=True,
        verbose=0, warm_start=False)
 
-def guess_Price(beds,baths,sqr_feet,year):
-    average = (get_year_price(year,Dow) + get_year_price(year,sp500))/2
+def guess_Price(beds,baths,sqr_feet,year,month):
+    average = (get_year_price(year,month,Dow) + get_year_price(year,month,sp500))/2
     print(average)
     return (clf.predict([[beds, baths,sqr_feet]]) / (average))
 
-print(guess_Price(1,1,760,2009))
+print(guess_Price(1,1,760,"2009","02"))
 
