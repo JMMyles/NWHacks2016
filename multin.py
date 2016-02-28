@@ -59,18 +59,23 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     by taking num_items gradient steps with learning
     rate alpha
     '''
+    X_1 = X[1:]
+    X_1 = X[2:]
+    X_1 = X[3:]
+    X_1 = X[4:]
+
     m = y.size
     J_history = zeros(shape=(num_iters, 1))
 
     for i in range(num_iters):
 
-        predictions = X.dot(theta)
+        predictions = X_1.dot(theta)
 
         theta_size = theta.size
 
         for it in range(theta_size):
 
-            temp = X[:, it]
+            temp = X_1[:, it]
             temp.shape = (m, 1)
 
             errors_x1 = (predictions - y) * temp
@@ -94,7 +99,7 @@ for line in HouseFile:
         price_matrix = np.concatenate((price_matrix, new_price), axis=0)
         house_list.append(house)
 
-X = info_list
+X = info_list.transpose()
 y = price_matrix
 num_iters = 100
 alpha = 0.01
