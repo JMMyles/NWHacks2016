@@ -6,10 +6,14 @@ import re
 import numpy as np
 import math
 from sklearn import preprocessing, metrics, cross_validation
+import urllib.request
+import re
+from yahoo_finance import Share
+from sklearn.linear_model import SGDClassifier
 
 
 HouseFile = open('HousingData.csv','r')
-info_list = np.matrix([1,1,1,1])
+info_list = np.matrix([1,1,1])
 house_list = []
 price_matrix = np.matrix([1])
 np.seterr(divide='ignore', invalid='ignore')
@@ -37,6 +41,40 @@ def __repr__(self):
 
 def __str__(self):
     return "zip:%s beds:%s baths:%s sqr_feet:%s price:%s" % (self.zip_code, self.beds,self.baths,self.sqr_feet,self.price)
+
+
+NASDAQ = Share('^NQDXUSB')
+Dow = Share('^DJI')
+sp500 = Share('^GSPC')
+
+def get_year_price(year, index):
+    index_year = index.get_historical(year+'-01-01', year+'-12-31')
+    s_open = float(index_year[0]['Open'])
+    s_close = float(index_year[0]['Close'])
+    s_open365 = float(index_year[len(index_year) - 1]['Open'])
+    s_close365 = float(index_year[len(index_year) - 1]['Close'])
+    s_open_diff = 1 + (s_open - s_open365) / s_open
+
+    return(s_open_diff)
+
+def feature_normalize(X):
+    '''
+    Returns a normalized version of X where
+    the mean value of each feature is 0 and the standard deviation
+    is 1. This is often a good preprocessing step to do when
+    working with learning algorithms.
+    '''
+    mean_r = []
+    std_r = []
+
+    n_c = X.shape[1]
+    for i in range(n_c):
+        m = mean(X[:, i])
+        s = std(X[:, i])
+        mean_r.append(m)
+        std_r.append(s)
+
+    return mean_r, std_r
 
 def compute_cost(X, y, theta):
     '''
@@ -81,7 +119,7 @@ for line in HouseFile:
 
     if matchObj:
         house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
-        new_value = np.matrix([float(matchObj.group(1)),float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
+        new_value = np.matrix([float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
         info_list = np.concatenate((info_list, new_value), axis=0)
         new_price = np.matrix([float(matchObj.group(5))])
         price_matrix = np.concatenate((price_matrix, new_price), axis=0)
@@ -96,19 +134,32 @@ m = y.size
 y.shape = (m, 1)
 
 #Scale features and set them to zero mean
-X_normalized = preprocessing.normalize(X, norm='l2')
+X_normalized = preprocessing.scale(X)
+print(X_normalized)
+mean_r,std_r = feature_normalize(X)
 #Add a column of ones to X (interception data)
-it = np.ones((m,5))
+it = np.ones((m,4))
 it[:,:-1] = X_normalized.transpose()
 
 #Some gradient descent settings
-iterations = 1
-alpha = 1
+iterations = 10
+alpha = .001
 
 #Init Theta and Run Gradient Descent
-theta = zeros(shape=(5, 1))
+theta = zeros(shape=(4, 1))
 
 Theta, J_history = gradient_descent(it, y, theta, alpha, iterations)
-print(Theta)
-print(J_history)
+
+def guessPrice(beds,baths,sqr_feet,year):
+    year = str(year-4)
+    a1 = get_year_price(year,Dow)
+    c1 = get_year_price(year,sp500)
+    average = (a1 + c1) / 2
+    price = average * array([1.0,   ((beds - mean_r[0]) / std_r[0]), ((baths - mean_r[1]) / std_r[1]), ((sqr_feet - mean_r[2]) / std_r[2])]).dot(theta)
+
+    return price
+
+print(predict())
+
+
 
