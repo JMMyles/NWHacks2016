@@ -99,9 +99,9 @@ y = price_matrix
 num_iters = 100
 alpha = 0.01
 y_len = y.size
-theta = np.zeros((y_len,1))
+theta = np.zeros(shape=(y_len,1)
+print(theta)
 
-predictions = X.dot(X)
 '''
 J = gradient_descent(X, y, theta, alpha, num_iters)
 '''

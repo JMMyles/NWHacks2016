@@ -1,5 +1,6 @@
 import urllib.request
 import re
+from yahoo_finance import Share
 
 def get_stock_quote(symbol):
 	base_url = 'http://finance.google.com/finance?q='
@@ -12,3 +13,9 @@ def get_stock_quote(symbol):
 	return quote
 
 print(get_stock_quote('NASDAQ'))
+
+ 
+yahoo = Share('YHOO')
+print(yahoo.get_open())
+print(yahoo.get_price())
+print(yahoo.get_trade_datetime())
