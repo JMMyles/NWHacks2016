@@ -48,13 +48,14 @@
 			<p>No requests.</p>
 		{% endif %}
 					-->
-					
-    	<p>Enter Housing Information.</p>
+      <div class = "container text-center">
+    	<p size ="4" style="font-family:courier"><big>Enter Housing Information</big></p>
     	<form action="/results/" method="post">
     	{% csrf_token %}
     	{{ form }}
     	<input type="submit" value="Submit" />
 		</form>
+    </div>
 	</body>
 </html>
 
