@@ -34,5 +34,5 @@ Dow = Share('^DJI')
 print(Dow.get_price())
 sp500 = Share('^GSPC')
 print(sp500.get_price())
-print(get_year_price(2000, NASDAQ))
+print(get_year_price('2000', NASDAQ))
 
