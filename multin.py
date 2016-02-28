@@ -7,9 +7,9 @@ import numpy as np
 
 
 HouseFile = open('HousingData.csv','r')
-info_list = np.matrix(["0","0","0","0"])
+info_list = np.matrix([0,0,0,0])
 house_list = []
-price_matrix = np.matrix(["0"])
+price_matrix = np.matrix([0])
 
 # Classes
 class House(object):
@@ -88,7 +88,7 @@ for line in HouseFile:
 
     if matchObj:
         house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
-        new_value = np.matrix([matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4)])
+        new_value = np.matrix([float(matchObj.group(1)),float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
         info_list = np.concatenate((info_list, new_value), axis=0)
         new_price = np.matrix([matchObj.group(5)])
         price_matrix = np.concatenate((price_matrix, new_price), axis=0)
@@ -99,10 +99,12 @@ y = price_matrix
 num_iters = 100
 alpha = 0.01
 y_len = y.size
-theta = np.zeros(shape=(y_len,1)
-print(theta)
+theta = np.zeros(shape=(y_len,1))
+
+J = gradient_descent(X, y, theta, alpha, num_iters)
 
 '''
+predictions = X.dot(theta)
 J = gradient_descent(X, y, theta, alpha, num_iters)
 '''
 '''
