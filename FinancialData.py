@@ -16,7 +16,7 @@ from yahoo_finance import Share
 
 
 def get_year_price(year, index):
-	index_year = index.get_historical(year+'01-01', year+'12-31')
+	index_year = index.get_historical(year+'-01-01', year+'-12-31')
 	price = 0
 	for stock in index_year:
 		price += stock.price
