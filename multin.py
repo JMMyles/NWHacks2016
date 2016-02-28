@@ -7,13 +7,13 @@ import numpy as np
 
 
 HouseFile = open('HousingData.csv','r')
-info_list = np.matrix([0,0,0,0])
+info_list = np.matrix([1,1,1,1])
 house_list = []
-price_matrix = np.matrix([0])
+price_matrix = np.matrix([1])
 
 # Classes
 class House(object):
-    zip_code = ""
+    zip_code = 0
     beds = 0
     baths = 0
     sqr_feet = 0
@@ -36,6 +36,30 @@ def __str__(self):
 
 #Evaluate the linear regression
 
+def feature_normalize(X):
+    '''
+    Returns a normalized version of X where
+    the mean value of each feature is 0 and the standard deviation
+    is 1. This is often a good preprocessing step to do when
+    working with learning algorithms.
+    '''
+    mean_r = []
+    std_r = []
+
+    X_norm = X
+    #np.insert(X_norm, 1, 1, axis=1)
+
+    n_c = X.shape[1]
+    for i in range(n_c):
+        m = mean(X[:, i])
+        s = std(X[:, i])
+        mean_r.append(m)
+        std_r.append(s)
+        #print(s)
+        #print((X_norm[:, i] - m))
+        X_norm[:, i] = (X_norm[:, i] - m) / s
+
+    return X_norm, mean_r, std_r
 
 def compute_cost(X, y, theta):
     '''
@@ -46,9 +70,11 @@ def compute_cost(X, y, theta):
 
     predictions = X.dot(theta)
 
-    sqErrors = (predictions - y)
+    sqErrors = (predictions.transpose() - y)
 
     J = (1.0 / (2 * m)) * sqErrors.T.dot(sqErrors)
+
+    print(J)
 
     return J
 
@@ -64,27 +90,30 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     X_1 = X[3:]
     X_1 = X[4:]
 
-    m = y.size
+    (n,m) = y.shape
     J_history = zeros(shape=(num_iters, 1))
 
     for i in range(num_iters):
 
-        predictions = X_1.dot(theta)
+        predictions = X.dot(theta)
+        #print(predictions)
+        #print(y)
 
         theta_size = theta.size
 
         for it in range(theta_size):
 
-            temp = X_1[:, it]
-            temp.shape = (m, 1)
+            temp = X[:, it]
+            #print(temp)
 
             errors_x1 = (predictions - y) * temp
 
             theta[it][0] = theta[it][0] - alpha * (1.0 / m) * errors_x1.sum()
 
         J_history[i, 0] = compute_cost(X, y, theta)
+        #print(theta)
 
-    return theta, J_history
+    return(theta, J_history)
 
 
 #Load the dataset
@@ -95,54 +124,36 @@ for line in HouseFile:
         house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
         new_value = np.matrix([float(matchObj.group(1)),float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
         info_list = np.concatenate((info_list, new_value), axis=0)
-        new_price = np.matrix([matchObj.group(5)])
+        new_price = np.matrix([float(matchObj.group(5))])
         price_matrix = np.concatenate((price_matrix, new_price), axis=0)
         house_list.append(house)
 
 X = info_list.transpose()
 y = price_matrix
-num_iters = 100
-alpha = 0.01
-y_len = y.size
-theta = np.zeros(shape=(y_len,1))
 
-J = gradient_descent(X, y, theta, alpha, num_iters)
-
-'''
-predictions = X.dot(theta)
-J = gradient_descent(X, y, theta, alpha, num_iters)
-'''
-'''
-
-cost = compute_cost(X, y, theta)
 #number of training samples
 m = y.size
 
 y.shape = (m, 1)
 
 #Scale features and set them to zero mean
+print(X)
 x, mean_r, std_r = feature_normalize(X)
-
+print(X)
 #Add a column of ones to X (interception data)
-it = ones(shape=(m, 3))
-it[:, 1:3] = x
+it = ones(shape=(m, 4))
+it[:, 0:4] = x.transpose()
 
 #Some gradient descent settings
 iterations = 100
 alpha = 0.01
 
 #Init Theta and Run Gradient Descent
-theta = zeros(shape=(3, 1))
+theta = zeros(shape=(4, 1))
 
 theta, J_history = gradient_descent(it, y, theta, alpha, iterations)
-print(theta)
-print(J_history)
-plot(arange(iterations), J_history)
-xlabel('Iterations')
-ylabel('Cost Function')
-show()
 
-#Predict price of a 1650 sq-ft 3 br house
-price = array([1.0,   ((1650.0 - mean_r[0]) / std_r[0]), ((3 - mean_r[1]) / std_r[1])]).dot(theta)
-print('Predicted price of a 1650 sq-ft, 3 br house: %f' % (price))
-'''
+print(theta)
+print(info_list)
+
+
