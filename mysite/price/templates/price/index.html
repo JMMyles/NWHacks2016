@@ -1,0 +1,63 @@
+{% load staticfiles %}
+<html>
+    <head>
+        <title>Django Girls blog</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" type="text/css" href="{% static 'price/style.css' %}" />
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">NWHacks 2016</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class = "jumbotron">
+		<div class = "container text-center">
+			<h1 style = "padding-top: 15px">Price Predictor</h1>
+			<p> This web application is meant to predict the price of different homes in the Sacramento area. By giving us the homes Postal Code, Square Foot, Number of Bedrooms and Number of Washrooms of the home we can try and predict the homes current value. You can also fill in the year if you want to find the homes value from a different time </p>
+			<div class="btn-group">
+				<a href = "" class = "btn btn-lg btn-info">Share</a>
+				<a href = "" class = "btn btn-lg btn-default">Tell us what you think!</a>
+				<a href = "" class = "btn btn-lg btn-info">Socal media</a>
+			</div>
+		</div><!-- End container -->
+	
+	</div><!-- End jumbotron -->
+	<!--
+	{% if latest_request_list %}
+    		<ul>
+    		{% for requests in latest_request_list %}
+        	 <li>{{ requests }}</li>
+    	{% endfor %}
+    	</ul>
+    	{% else %}
+			<p>No requests.</p>
+		{% endif %}
+					-->
+					
+    	<p>Enter Housing Information.</p>
+    	<form action="/results/" method="post">
+    	{% csrf_token %}
+    	{{ form }}
+    	<input type="submit" value="Submit" />
+		</form>
+	</body>
+</html>
+
+
+
+   
