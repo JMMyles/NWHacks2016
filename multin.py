@@ -100,11 +100,10 @@ num_iters = 100
 alpha = 0.01
 y_len = y.size
 theta = np.zeros((y_len,1))
-cost = compute_cost(X, y, theta)
-'''
 J = gradient_descent(X, y, theta, alpha, num_iters)
 '''
-'''
+
+cost = compute_cost(X, y, theta)
 #number of training samples
 m = y.size
 
