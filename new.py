@@ -140,8 +140,12 @@ SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
        verbose=0, warm_start=False)
 
 def guess_Price(beds,baths,sqr_feet,year):
-    average = (get_year_price(year,Dow) + get_year_price(year,sp500))/2
+    if year == 2016:
+        average = (Dow.get_change()+ sp500.get_change())/2
+    else:
+        average = (get_year_price(year,Dow) + get_year_price(year,sp500))/2
     print(average)
+    print(Dow.get_change())
     return (clf.predict([[beds, baths,sqr_feet]]) / (average))
 
 print(guess_Price(1,1,760,2009))
