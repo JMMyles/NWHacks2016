@@ -100,7 +100,11 @@ num_iters = 100
 alpha = 0.01
 y_len = y.size
 theta = np.zeros((y_len,1))
+
+predictions = X.dot(X)
+'''
 J = gradient_descent(X, y, theta, alpha, num_iters)
+'''
 '''
 
 cost = compute_cost(X, y, theta)
