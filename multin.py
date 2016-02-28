@@ -71,7 +71,7 @@ def compute_cost(X, y, theta):
 
     predictions = X.dot(theta)
 
-    sqErrors = (predictions.transpose() - y)
+    sqErrors = (predictions - y)
 
     J = (1.0 / (2 * m)) * sqErrors.T.dot(sqErrors)
 
@@ -91,19 +91,15 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     for i in range(num_iters):
 
         predictions = X.dot(theta)
-        #print(predictions)
-        #print(y)
-
         theta_size = theta.size
 
-        for it in range(theta_size):
+        for it in range(theta_size):  
             temp = X[:, it]
             errors_x1 = (predictions - y) * temp
             theta[it][0] = theta[it][0] - alpha * (1.0 / m) * errors_x1.sum()
 
         J_history[i, 0] = compute_cost(X, y, theta)
         
-
     return(theta, J_history)
 
 
@@ -112,12 +108,13 @@ for line in HouseFile:
     matchObj = re.match( r'\d+ \w+ \w+,\w+,(\w+),\w+,(\d+),(\d+),(\d+),\w+,\w+ \w+ \d+ \d+:\d+:\d+ \w+ \d+,(\d+)', line, re.M|re.I)
 
     if matchObj:
-        house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
-        new_value = np.matrix([float(matchObj.group(1)),float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
-        info_list = np.concatenate((info_list, new_value), axis=0)
-        new_price = np.matrix([float(matchObj.group(5))])
-        price_matrix = np.concatenate((price_matrix, new_price), axis=0)
-        house_list.append(house)
+        if matchObj.group(1).isdigit():
+            house = make_House(matchObj.group(1),matchObj.group(2),matchObj.group(3),matchObj.group(4),matchObj.group(5))
+            new_value = np.matrix([float(matchObj.group(1)),float(matchObj.group(2)),float(matchObj.group(3)),float(matchObj.group(4))])
+            info_list = np.concatenate((info_list, new_value), axis=0)
+            new_price = np.matrix([float(matchObj.group(5))])
+            price_matrix = np.concatenate((price_matrix, new_price), axis=0)
+            house_list.append(house)
 
 X = info_list.transpose()
 y = price_matrix
