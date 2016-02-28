@@ -10,6 +10,7 @@ HouseFile = open('HousingData.csv','r')
 info_list = np.matrix([1,1,1,1])
 house_list = []
 price_matrix = np.matrix([1])
+np.seterr(divide='ignore', invalid='ignore')
 
 # Classes
 class House(object):
@@ -74,8 +75,6 @@ def compute_cost(X, y, theta):
 
     J = (1.0 / (2 * m)) * sqErrors.T.dot(sqErrors)
 
-    print(J)
-
     return J
 
 
@@ -85,10 +84,6 @@ def gradient_descent(X, y, theta, alpha, num_iters):
     by taking num_items gradient steps with learning
     rate alpha
     '''
-    X_1 = X[1:]
-    X_1 = X[2:]
-    X_1 = X[3:]
-    X_1 = X[4:]
 
     (n,m) = y.shape
     J_history = zeros(shape=(num_iters, 1))
@@ -102,16 +97,12 @@ def gradient_descent(X, y, theta, alpha, num_iters):
         theta_size = theta.size
 
         for it in range(theta_size):
-
             temp = X[:, it]
-            #print(temp)
-
             errors_x1 = (predictions - y) * temp
-
             theta[it][0] = theta[it][0] - alpha * (1.0 / m) * errors_x1.sum()
 
         J_history[i, 0] = compute_cost(X, y, theta)
-        #print(theta)
+        
 
     return(theta, J_history)
 
@@ -137,9 +128,7 @@ m = y.size
 y.shape = (m, 1)
 
 #Scale features and set them to zero mean
-print(X)
 x, mean_r, std_r = feature_normalize(X)
-print(X)
 #Add a column of ones to X (interception data)
 it = ones(shape=(m, 4))
 it[:, 0:4] = x.transpose()
@@ -151,9 +140,6 @@ alpha = 0.01
 #Init Theta and Run Gradient Descent
 theta = zeros(shape=(4, 1))
 
-theta, J_history = gradient_descent(it, y, theta, alpha, iterations)
-
-print(theta)
-print(info_list)
+Theta, J_history = gradient_descent(it, y, theta, alpha, iterations)
 
 
